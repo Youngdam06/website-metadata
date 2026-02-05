@@ -7,7 +7,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-@app.get("/WAExtractor/ping")
+@app.get("/ping")
 def root():
     return {"status": "ok", "message": "Metadata & Article Extractor API running"}
 
