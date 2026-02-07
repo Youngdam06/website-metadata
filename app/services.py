@@ -30,10 +30,30 @@ def extract_metadata(url: str) -> dict:
             tag = soup.find("meta", attrs={"property": prop})
         return tag["content"] if tag and tag.get("content") else None
 
+    # Title
     title = soup.title.string.strip() if soup.title else None
+
+    # Basic meta
     description = get_meta(name="description") or get_meta(prop="og:description")
     image = get_meta(prop="og:image")
     site_name = get_meta(prop="og:site_name")
+
+    # Favicon
+    favicon = None
+    icon_tag = soup.find("link", rel=lambda x: x and "icon" in x.lower())
+    if icon_tag and icon_tag.get("href"):
+        favicon = icon_tag["href"]
+
+    # Collect all meta tags
+    meta_tags = {}
+    for tag in soup.find_all("meta"):
+        if tag.get("name") and tag.get("content"):
+            meta_tags[tag.get("name")] = tag.get("content")
+        elif tag.get("property") and tag.get("content"):
+            meta_tags[tag.get("property")] = tag.get("content")
+
+    # OpenGraph tags only
+    og_tags = {k: v for k, v in meta_tags.items() if k.startswith("og:")}
 
     return {
         "url": url,
@@ -41,6 +61,9 @@ def extract_metadata(url: str) -> dict:
         "description": description,
         "image": image,
         "site_name": site_name,
+        "favicon": favicon,
+        "meta_tags": meta_tags,
+        "open_graph": og_tags,
     }
 
 
